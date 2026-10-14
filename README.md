@@ -7,6 +7,7 @@ This repo contains real-world coding problems with production-ready code. Each o
 | Problem | File | Description |
 |---|---|---|
 | LLM output streaming | `llm_output_stream.py` | FastAPI endpoint that streams Claude's response token by token over Server-Sent Events, with keep-alive pings and a done event. |
+| URL shortener | `url_shortner.py` | FastAPI service that turns long URLs into 6-character base62 codes and redirects codes back to the original URL. |
 
 ## Setup
 
@@ -16,3 +17,4 @@ Requires Python 3.13+ and [uv](https://docs.astral.sh/uv/).
 uv sync
 export ANTHROPIC_API_KEY=...   # or put it in .env
 ```
+
