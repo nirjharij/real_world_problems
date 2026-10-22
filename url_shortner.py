@@ -3,7 +3,7 @@ import logging
 import string
 import uvicorn
 
-from fastapi import FastAPI, Body, Query
+from fastapi import FastAPI, Body, Path
 from fastapi.responses import JSONResponse
 from pydantic import HttpUrl
 from typing import Annotated
@@ -42,7 +42,7 @@ async def shorten_url(url: Annotated[HttpUrl, Body(embed=True)]):
     long_url_hash = hashlib.sha256(long_url.encode()).digest()
     if long_url_hash in long_to_short:
         short_url = long_to_short[long_url_hash]
-        content = {"short_url": short_url}
+        content = {"short_url": BASE_URL + short_url}
         logger.info(f"Shortened URL for {long_url} already exists and is {short_url}")
         return JSONResponse(status_code=200, content=content)
 
@@ -60,9 +60,11 @@ async def shorten_url(url: Annotated[HttpUrl, Body(embed=True)]):
     logger.info(f"Created shortened URL for {long_url} : {short_url}")
     return JSONResponse(status_code=201, content=content)
 
-@app.get("/urls")
-async def fetch_url(code: Annotated[str, Query(pattern=r"^[A-Za-z0-9]{6}$")]):
-    return RedirectResponse(url=short_to_long[code], status_code=301)
+@app.get("/urls/{code}")
+async def fetch_url(code: Annotated[str, Path(pattern=r"^[A-Za-z0-9]{6}$")]):
+    if code in short_to_long:
+        return RedirectResponse(url=short_to_long[code], status_code=301)
+    return JSONResponse(status_code=404, content={"message": "URL not found"})
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
